@@ -1,0 +1,71 @@
+:root {
+  /* paper / ink / stamp palette */
+  --paper: #f1ece0;
+  --paper-raised: #f8f4ea;
+  --ink: #221d16;
+  --ink-soft: #564e40;
+  --ink-faint: #8c8373;
+  --rule: #d9d0bc;
+  --rule-strong: #c2b79c;
+
+  --oxblood: #9a2f22;
+  --oxblood-deep: #7c2419;
+  --oxblood-wash: #f3e1dc;
+
+  --mustard: #b4791a;
+  --mustard-wash: #f3e3c4;
+
+  --olive: #4c5a34;
+  --olive-wash: #e3e8d6;
+
+  --alert: #a4312a;
+  --alert-wash: #f6e1de;
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  font: 16px/1.5 var(--font-body);
+  color-scheme: light;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(34, 29, 22, 0.055) 1px, transparent 0);
+  background-size: 15px 15px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+code,
+.mono {
+  font-family: var(--font-mono);
+}
