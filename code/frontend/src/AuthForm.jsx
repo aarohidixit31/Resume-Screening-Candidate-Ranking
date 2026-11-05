@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { login, signup } from "./api";
 
-export default function AuthForm({ onAuthenticated }) {
-  const [mode, setMode] = useState("login"); // "login" | "signup"
+export default function AuthForm({ initialMode = "login", onAuthenticated, onBack }) {
+  const [mode, setMode] = useState(initialMode); // "login" | "signup"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,6 +25,10 @@ export default function AuthForm({ onAuthenticated }) {
 
   return (
     <div className="page auth-page">
+      <button className="back-link" onClick={onBack}>
+        &larr; Back
+      </button>
+
       <header className="header">
         <h1>Resume Screening &amp; Candidate Ranking</h1>
         <p className="subtitle">Sign in to create jobs and rank candidates</p>
