@@ -334,6 +334,60 @@ textarea {
   transform: translate(-2px, -2px);
 }
 
+.job-card-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper-raised);
+  color: var(--ink-faint);
+  box-shadow: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.job-card:hover .job-card-delete,
+.job-card-delete:focus-visible {
+  opacity: 1;
+}
+
+.job-card-delete:hover {
+  background: var(--alert-wash);
+  color: var(--alert);
+  border-color: var(--alert);
+}
+
+.job-card-delete.confirming {
+  position: static;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  margin-left: auto;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 20px;
+  background: var(--alert-wash);
+  color: var(--alert);
+  border-color: var(--alert);
+  order: -1;
+  align-self: flex-end;
+}
+
 .job-card h3 {
   font-size: 16px;
   margin-top: 4px;
@@ -564,10 +618,25 @@ textarea {
   gap: 10px;
 }
 
+.result-name-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .result-name {
   font-weight: 600;
   color: var(--ink);
   font-size: 14px;
+}
+
+.match-pct {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--oxblood-deep);
+  white-space: nowrap;
 }
 
 .rank-badge {
@@ -656,4 +725,33 @@ textarea {
 .score-bar-fill {
   height: 100%;
   background: var(--oxblood);
+}
+
+/* ============ resume detail ============ */
+.resume-detail {
+  margin-top: 2px;
+}
+
+.resume-toggle {
+  padding: 4px 0;
+  font-size: 10px;
+}
+
+.resume-detail-body {
+  margin-top: 8px;
+}
+
+.resume-text {
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  word-break: break-word;
 }

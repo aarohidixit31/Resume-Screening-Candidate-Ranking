@@ -19,14 +19,14 @@ def extract_text_from_docx(path: Path) -> str:
     return "\n".join(p.text for p in doc.paragraphs)
 
 
-def extract_text(path: Path) -> str:
+def extract_text(path: Path, display_name: str | None = None) -> str:
     path = Path(path)
     suffix = path.suffix.lower()
     if suffix == ".pdf":
         return extract_text_from_pdf(path)
     if suffix == ".docx":
         return extract_text_from_docx(path)
-    raise ValueError(f"Unsupported file type: {suffix} ({path.name})")
+    raise ValueError(f"Unsupported file type: {suffix} ({display_name or path.name})")
 
 
 def extract_text_from_bytes(data: bytes, filename: str) -> str:
@@ -36,6 +36,6 @@ def extract_text_from_bytes(data: bytes, filename: str) -> str:
         tmp.write(data)
         tmp_path = Path(tmp.name)
     try:
-        return extract_text(tmp_path)
+        return extract_text(tmp_path, display_name=filename)
     finally:
         tmp_path.unlink(missing_ok=True)

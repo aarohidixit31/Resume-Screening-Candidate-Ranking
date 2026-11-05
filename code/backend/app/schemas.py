@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, Field
 # --- Auth ---
 class SignupRequest(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=8)
+    password: str = Field(min_length=8, max_length=128)
 
 
 class LoginRequest(BaseModel):
@@ -30,8 +30,13 @@ class UserOut(BaseModel):
 
 # --- Jobs ---
 class JobCreate(BaseModel):
-    title: str
-    description: str
+    title: str = Field(min_length=1, max_length=255)
+    description: str = Field(min_length=1, max_length=20000)
+
+
+class JobUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, min_length=1, max_length=20000)
 
 
 class JobOut(BaseModel):
@@ -59,10 +64,22 @@ class CandidateDetail(CandidateOut):
     raw_text: str
 
 
+class UploadFailure(BaseModel):
+    file_name: str
+    error: str
+
+
+class ResumeUploadResult(BaseModel):
+    created: list[CandidateOut]
+    failed: list[UploadFailure]
+
+
 # --- Results ---
 class RankedResult(BaseModel):
     rank: int
     candidate_id: int
     file_name: str
+    semantic_score: float
     tfidf_score: float
     bm25_score: float
+    final_score: float

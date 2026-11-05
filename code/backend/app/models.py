@@ -54,8 +54,10 @@ class Score(Base):
 
     candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.id"), primary_key=True)
     job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"), nullable=False, index=True)
+    semantic_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     tfidf_score: Mapped[float] = mapped_column(Float, nullable=False)
     bm25_score: Mapped[float] = mapped_column(Float, nullable=False)
+    final_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     rank: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 

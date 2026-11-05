@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createJob, getResults, rankJob, uploadResumes } from "./api";
+import { createJob, getCandidate, getResults, rankJob, uploadResumes } from "./api";
 
 const STEPS = ["Job Description", "Upload Resumes", "Ranked Results"];
 const ACCEPTED = [".pdf", ".docx"];
@@ -16,6 +16,45 @@ function RankBadge({ rank }) {
     <span className={`rank-badge rank-${tier}`}>
       <span>{label}</span>
     </span>
+  );
+}
+
+function ResumeDetail({ token, candidateId }) {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function toggle() {
+    const next = !open;
+    setOpen(next);
+    if (next && text === null && !loading) {
+      setLoading(true);
+      setError("");
+      try {
+        const candidate = await getCandidate(token, candidateId);
+        setText(candidate.raw_text);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }
+
+  return (
+    <div className="resume-detail">
+      <button type="button" className="ghost resume-toggle" onClick={toggle}>
+        {open ? "Hide parsed resume" : "View parsed resume"}
+      </button>
+      {open && (
+        <div className="resume-detail-body">
+          {loading && <span className="muted">Loading...</span>}
+          {error && <div className="error">{error}</div>}
+          {text !== null && <pre className="resume-text">{text}</pre>}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -108,17 +147,29 @@ export default function JobWizard({ token, initialJob, onBack }) {
     setError("");
     setLoading(true);
     try {
-      await uploadResumes(token, job.id, files);
+      const { created, failed } = await uploadResumes(token, job.id, files);
+      if (failed.length > 0) {
+        const names = failed.map((f) => `${f.file_name} (${f.error})`).join("; ");
+        setError(
+          created.length > 0
+            ? `${failed.length} file(s) could not be read and were skipped: ${names}`
+            : `None of the files could be read: ${names}`
+        );
+      }
+      if (created.length === 0) {
+        setLoading(false);
+        return;
+      }
       setFiles([]);
-      await handleRank(job.id);
+      await handleRank(job.id, /* clearError */ failed.length === 0);
     } catch (err) {
       setError(err.message);
       setLoading(false);
     }
   }
 
-  async function handleRank(jobId = job.id) {
-    setError("");
+  async function handleRank(jobId = job.id, clearError = true) {
+    if (clearError) setError("");
     setLoading(true);
     try {
       const ranked = await rankJob(token, jobId);
@@ -131,6 +182,7 @@ export default function JobWizard({ token, initialJob, onBack }) {
     }
   }
 
+  const maxSemantic = Math.max(1e-9, ...results.map((r) => r.semantic_score));
   const maxTfidf = Math.max(1e-9, ...results.map((r) => r.tfidf_score));
   const maxBm25 = Math.max(1e-9, ...results.map((r) => r.bm25_score));
 
@@ -252,9 +304,14 @@ export default function JobWizard({ token, initialJob, onBack }) {
               <li key={r.candidate_id} className="result-card">
                 <RankBadge rank={r.rank} />
                 <div className="result-body">
-                  <span className="result-name">{r.file_name}</span>
+                  <div className="result-name-row">
+                    <span className="result-name">{r.file_name}</span>
+                    <span className="match-pct">{Math.round(r.final_score * 100)}% match</span>
+                  </div>
+                  <ScoreBar label="Semantic (SBERT)" value={r.semantic_score} max={maxSemantic} />
                   <ScoreBar label="TF-IDF" value={r.tfidf_score} max={maxTfidf} />
                   <ScoreBar label="BM25" value={r.bm25_score} max={maxBm25} />
+                  <ResumeDetail token={token} candidateId={r.candidate_id} />
                 </div>
               </li>
             ))}

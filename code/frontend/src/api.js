@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 async function handle(res) {
   if (!res.ok) {
@@ -6,9 +6,10 @@ async function handle(res) {
     const detail = body.detail;
     const message = Array.isArray(detail)
       ? detail.map((d) => d.msg).join(", ")
-      : detail || `Request failed (${res.status})`;
+      : detail || body.error || `Request failed (${res.status})`;
     throw new Error(message);
   }
+  if (res.status === 204) return null;
   return res.json();
 }
 
@@ -69,4 +70,24 @@ export function rankJob(token, jobId) {
 
 export function getResults(token, jobId) {
   return fetch(`${BASE_URL}/jobs/${jobId}/results`, { headers: authHeaders(token) }).then(handle);
+}
+
+export function deleteJob(token, jobId) {
+  return fetch(`${BASE_URL}/jobs/${jobId}`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  }).then(handle);
+}
+
+export function updateJob(token, jobId, data) {
+  return fetch(`${BASE_URL}/jobs/${jobId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders(token) },
+    body: JSON.stringify(data),
+  }).then(handle);
+}
+
+// --- Candidates ---
+export function getCandidate(token, candidateId) {
+  return fetch(`${BASE_URL}/candidates/${candidateId}`, { headers: authHeaders(token) }).then(handle);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listJobs } from "./api";
+import { deleteJob, listJobs } from "./api";
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -13,6 +13,8 @@ export default function Dashboard({ token, onNewJob, onOpenJob }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [confirmingId, setConfirmingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     listJobs(token)
@@ -20,6 +22,25 @@ export default function Dashboard({ token, onNewJob, onOpenJob }) {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [token]);
+
+  async function handleDeleteClick(e, job) {
+    e.stopPropagation();
+    if (confirmingId !== job.id) {
+      setConfirmingId(job.id);
+      return;
+    }
+    setDeletingId(job.id);
+    setError("");
+    try {
+      await deleteJob(token, job.id);
+      setJobs((prev) => prev.filter((j) => j.id !== job.id));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeletingId(null);
+      setConfirmingId(null);
+    }
+  }
 
   return (
     <div className="dashboard">
@@ -51,11 +72,30 @@ export default function Dashboard({ token, onNewJob, onOpenJob }) {
       {!loading && jobs.length > 0 && (
         <div className="job-grid">
           {jobs.map((job) => (
-            <button key={job.id} className="job-card" onClick={() => onOpenJob(job)}>
+            <div
+              key={job.id}
+              className="job-card"
+              role="button"
+              tabIndex={0}
+              onClick={() => onOpenJob(job)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") onOpenJob(job);
+              }}
+            >
+              <button
+                type="button"
+                className={`job-card-delete ${confirmingId === job.id ? "confirming" : ""}`}
+                onClick={(e) => handleDeleteClick(e, job)}
+                onBlur={() => setConfirmingId(null)}
+                disabled={deletingId === job.id}
+                aria-label={confirmingId === job.id ? "Confirm delete" : "Delete job"}
+              >
+                {deletingId === job.id ? "..." : confirmingId === job.id ? "confirm?" : "×"}
+              </button>
               <h3>{job.title}</h3>
               <p className="job-card-desc">{job.description}</p>
               <span className="job-card-date">Created {formatDate(job.created_at)}</span>
-            </button>
+            </div>
           ))}
         </div>
       )}
