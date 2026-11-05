@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 # --- Auth ---
@@ -20,12 +20,11 @@ class TokenResponse(BaseModel):
 
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     email: EmailStr
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # --- Jobs ---
@@ -40,24 +39,22 @@ class JobUpdate(BaseModel):
 
 
 class JobOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     description: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
 
 # --- Candidates ---
 class CandidateOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     job_id: int
     file_name: str
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class CandidateDetail(CandidateOut):
